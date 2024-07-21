@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart' show AppBar, BoxDecoration, BoxFit, BuildContext, Card, Checkbox, Colors, Column, Container, CrossAxisAlignment, DecorationImage, DropdownButton, DropdownMenuItem, EdgeInsets, Expanded, FloatingActionButton, FontWeight, Icon, Icons, Key, MainAxisAlignment, NetworkImage, Padding, Row, Scaffold, ScaffoldMessenger, SingleChildScrollView, SizedBox, SnackBar, State, StatefulWidget, Text, TextStyle, Widget;
+import 'package:flutter/material.dart';
 
 class ShoppingListScreen extends StatefulWidget {
   const ShoppingListScreen({Key? key}) : super(key: key);
@@ -14,6 +14,21 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
     Ingredient('Olive Oil', 50, 'ml', 30),
     Ingredient('Brown Rice', 200, 'g', 500),
   ];
+
+  List<Ingredient> shoppingCart = [];
+
+  void _addNewIngredient() {
+    setState(() {
+      ingredients.add(Ingredient('New Item', 0, 'g', 0));
+    });
+  }
+
+  void _showShoppingCart() {
+    shoppingCart = ingredients.where((ingredient) => ingredient.isChecked).toList();
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => ShoppingCartScreen(shoppingCart: shoppingCart),
+    ));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +52,12 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                   _buildAboutSection(),
                   SizedBox(height: 24),
                   _buildIngredientsSection(),
+                  SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: _addNewIngredient,
+                    child: Text('Add New Ingredient'),
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                  ),
                 ],
               ),
             ),
@@ -44,13 +65,8 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // TODO: Implement add to shopping list functionality
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Added to shopping list'))
-          );
-        },
-        child: Icon(Icons.add_shopping_cart),
+        onPressed: _showShoppingCart,
+        child: Icon(Icons.shopping_cart),
         backgroundColor: Colors.green,
       ),
     );
@@ -166,4 +182,31 @@ class Ingredient {
   bool isChecked;
 
   Ingredient(this.name, this.amount, this.unit, this.available, {this.isChecked = false});
+}
+
+class ShoppingCartScreen extends StatelessWidget {
+  final List<Ingredient> shoppingCart;
+
+  const ShoppingCartScreen({Key? key, required this.shoppingCart}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Shopping Cart'),
+        backgroundColor: Colors.green,
+      ),
+      body: ListView.builder(
+        itemCount: shoppingCart.length,
+        itemBuilder: (context, index) {
+          final item = shoppingCart[index];
+          return ListTile(
+            title: Text(item.name),
+            subtitle: Text('${item.amount} ${item.unit}'),
+            trailing: Text('Available: ${item.available} ${item.unit}'),
+          );
+        },
+      ),
+    );
+  }
 }

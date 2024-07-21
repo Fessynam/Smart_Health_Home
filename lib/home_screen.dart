@@ -6,10 +6,33 @@ class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
-
 class _HomeScreenState extends State<HomeScreen> {
   String selectedPeriod = 'Today';
   int caloriesConsumed = 1234;
+  String searchQuery = '';
+  List<Meal> allMeals = [
+    Meal('Grilled Chicken Salad', 'https://bing.com/th?id=OSK.661aa6abe4e321b243ee34db4b45bc1c'),
+    Meal('Vegetable Stir Fry', 'https://th.bing.com/th/id/R.dbe7b9c9b422903d8b3b932f082dac6f?rik=2%2byVuXNBr%2fn5xA&pid=ImgRaw&r=0'),
+    Meal('Salmon with Roasted Vegetables', 'https://th.bing.com/th/id/R.9d4b963d811b25920574222859a69d8a?rik=Vkx1rqMhIOZCgA&pid=ImgRaw&r=0'),
+    Meal('Quinoa Buddha Bowl', 'https://th.bing.com/th/id/R.10b8b66e515f2d17211970b0c80c230f?rik=7jaM%2b3sPS7CoOg&riu=http%3a%2f%2fimages.media-allrecipes.com%2fuserphotos%2f960x960%2f4565089.jpg&ehk=R%2fOehHHQfDhtWQTGl0tW%2bbEQAMVeZ%2fl2BZCMecppEMM%3d&risl=&pid=ImgRaw&r=0'),
+    Meal('Greek Yogurt Parfait', 'https://th.bing.com/th/id/R.a847e179c990961116cb839c8b198082?rik=cOOTboVAnFdxhA&pid=ImgRaw&r=0'),
+    Meal('Avocado Toast with Egg', 'https://example.com/avocado_toast_egg.jpg'),
+    Meal('Lentil Soup', 'https://example.com/lentil_soup.jpg'),
+    Meal('Grilled Tofu Skewers', 'https://example.com/grilled_tofu_skewers.jpg'),
+    Meal('Spinach and Feta Omelette', 'https://example.com/spinach_feta_omelette.jpg'),
+    Meal('Turkey and Hummus Wrap', 'https://example.com/turkey_hummus_wrap.jpg'),
+    Meal('Baked Sweet Potato with Black Beans', 'https://example.com/sweet_potato_black_beans.jpg'),
+    Meal('Tuna Nicoise Salad', 'https://example.com/tuna_nicoise_salad.jpg'),
+    Meal('Mushroom Risotto', 'https://example.com/mushroom_risotto.jpg'),
+    Meal('Chicken and Vegetable Soup', 'https://example.com/chicken_vegetable_soup.jpg'),
+    Meal('Whole Grain Pasta with Tomato Sauce', 'https://example.com/whole_grain_pasta_tomato.jpg'),
+    Meal('Veggie Burger with Sweet Potato Fries', 'https://example.com/veggie_burger_fries.jpg'),
+    Meal('Fruit and Nut Oatmeal', 'https://example.com/fruit_nut_oatmeal.jpg'),
+    Meal('Grilled Shrimp Skewers', 'https://example.com/grilled_shrimp_skewers.jpg'),
+    Meal('Caprese Sandwich', 'https://example.com/caprese_sandwich.jpg'),
+    Meal('Stuffed Bell Peppers', 'https://example.com/stuffed_bell_peppers.jpg'),
+  ];
+  List<Meal> searchResults = [];// You'll need to define a Meal class
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +43,20 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,
         elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.person),
+          onPressed: () {
+            // TODO: Implement profile action
+          },
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () {
+              // TODO: Implement settings action
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -31,6 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  _buildSearchResults(),
                   _buildMealsSection(),
                   const SizedBox(height: 24),
                   _buildRemediesSection(),
@@ -55,23 +93,79 @@ class _HomeScreenState extends State<HomeScreen> {
           bottomRight: Radius.circular(30),
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Welcome back, User!',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+      child: TextField(
+        decoration: InputDecoration(
+          hintText: 'Search for meals...',
+          fillColor: Colors.white,
+          filled: true,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30),
+            borderSide: BorderSide.none,
           ),
-          SizedBox(height: 8),
-          Text(
-            'Let\'s keep you healthy today!',
-            style: TextStyle(fontSize: 16, color: Colors.white70),
-          ),
-        ],
+          prefixIcon: Icon(Icons.search),
+        ),
+        onChanged: (value) {
+          setState(() {
+            searchQuery = value;
+            searchResults = allMeals
+                .where((meal) =>
+                meal.name.toLowerCase().contains(searchQuery.toLowerCase()))
+                .toList();
+          });
+        },
       ),
     );
   }
 
+  Widget _buildSearchResults() {
+    if (searchQuery.isEmpty) return SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16.0),
+          child: Text(
+            'Results',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+        ),
+        Container(
+          height: 120,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: searchResults.length,
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: const EdgeInsets.only(right: 16.0),
+                child: Column(
+                  children: [
+                    Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        image: DecorationImage(
+                          image: NetworkImage(searchResults[index].imageUrl),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      searchResults[index].name,
+                      style: TextStyle(fontSize: 14),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+// A search bar should be here
   Widget _buildMealsSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -193,17 +287,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildPeriodButtons() {
-    return Row(
+    return Wrap(
+      alignment: WrapAlignment.spaceEvenly,
+      spacing: 8, // Horizontal space between buttons
+      runSpacing: 8, // Vertical space between rows if buttons wrap
       children: ['Today', 'Weekly', 'Monthly', 'Year'].map((period) {
-        return Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: ElevatedButton(
-              onPressed: () => setState(() => selectedPeriod = period),
-              child: Text(period),
-              style: ElevatedButton.styleFrom(
-                foregroundColor: selectedPeriod == period ? Colors.white : Colors.black, backgroundColor: selectedPeriod == period ? Colors.green : Colors.grey[300],
-              ),
+        return IntrinsicWidth( // This ensures the button width is based on its content
+          child: ElevatedButton(
+            onPressed: () => setState(() => selectedPeriod = period),
+            child: Text(period),
+            style: ElevatedButton.styleFrom(
+              foregroundColor: selectedPeriod == period ? Colors.white : Colors.black,
+              backgroundColor: selectedPeriod == period ? Colors.green : Colors.grey[300],
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8), // Adjust padding as needed
             ),
           ),
         );
@@ -254,4 +350,11 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+}
+
+class Meal {
+  final String name;
+  final String imageUrl;
+
+  Meal(this.name, this.imageUrl);
 }
